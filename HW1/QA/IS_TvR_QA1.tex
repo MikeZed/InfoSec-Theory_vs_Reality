@@ -1,0 +1,76 @@
+\documentclass{article}
+
+\input{aux_tex/packages.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PDF COLOR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \usepackage{xcolor} \pagecolor[rgb]{0,0,0} \color[rgb]{0.9,0.9,0.9}
+%%%%%%%%%%%%%%%%%%%%%%%%% SUPPRESS UNDERFULL HBOX %%%%%%%%%%%%%%%%%%%%%%%
+\hbadness = 20000
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Basic Document Settings 
+%
+\input{aux_tex/doc_formatting.tex}
+\input{aux_tex/is_tvr_defs.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{aux_tex/personal_info.tex}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%
+% Title 
+%
+
+\title{
+    \textmd{\bd{\hmwkClass:\ \\ \hmwkTitle}}\\
+}
+\author{\hmwkAuthorName}
+
+\begin{document}
+
+\maketitle
+
+\bd{Question.} \\
+Similar to what was described in class, we assume an attacker is able to
+measure the exact run time of the decryption function.
+What is any information can  such an attacker learn about decrypted valid messages?
+What is any information can such an attacker learn about invalid decrypted messages (e.g.,
+messages with invalid padding)? \\ \\
+
+\bd{Answer.}
+
+\underline{CBC-HMAC} \\
+For decrypted valid messages: \\
+Since the run time of the "\_\_decrypt" and "\_\_auth" methods is linear
+in the number of blocks of the message and the run time of "\_\_strip\_padding"
+is dependant on the padding length, the attacker can calculate the exact length
+of the message from the number of blocks in the message (which we know from the ciphertext)
+and the required padding length.
+
+Furthermore, if the attacker can modify the ciphertext, he can use his knowledge of the run time
+to know if the padding is correct after changing the ciphertext. Using that way he would be able to find
+the plaintext byte by byte (as we will see in the Lucky 13 attack)
+
+For decrypted invalid messages: \\
+The attacker would know if the padding is invalid or if the HMAC is incorrect,
+since he will be able to measure whether the "\_\_auth" method was called or not. \\
+
+
+\underline{PKCS} \\
+Notice that the "decrypt" method takes a constant amount of time since the length of the encrypted data is always $k$
+hence the attacker would mainly be able to measure the run time of the "parse" method.
+
+Hence for decrypted valid messages the attacker would be able to know the size of the padding and from
+that calculate the length of the message.
+
+Furthermore, if the attacker can modify the ciphertext, he can use his knowledge of the run time
+to know if the padding is correct after changing the ciphertext. Using this the attack can perform
+a Bleichenbacher attack and find the plaintext.
+
+For decrypted invalid messages the padding is incorrect, so the attacker would not be able to calculate
+the length of the message from the "parse" method.
+
+
+\end{document}

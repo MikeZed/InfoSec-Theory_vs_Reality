@@ -131,7 +131,7 @@ class AEAD_AES_128_CBC_HMAC_SHA_256(AEAD):
 
         data, TAG = P[:-16], P[-16:]
         Expected_TAG = self.__auth(aad + data)[:16]
-        
+
         if Expected_TAG != TAG:
             return None
 
@@ -152,7 +152,7 @@ if __name__ == "__main__":
     print(f"nonce = {nonce}")
     ciphertext = aead.authenticated_enc(data, aad, nonce)
     print(f"ciphertext = {ciphertext}")
-
+    
     p = aead.authenticated_dec(ciphertext, aad, nonce)
     print(p)
     print(len(data))

@@ -1,2 +1,11 @@
 
 *.json
+*.log
+*.gz
+*.fdb_latexmk
+*.aux
+*personal_info.tex
+IS_TvR_QA[1-9].pdf
+*.txt
+*.fls
+*.zip

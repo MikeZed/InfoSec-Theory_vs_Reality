@@ -69,7 +69,7 @@ class RSA(object):
             print('init vars:', k, N)
         if (p is not None) and (q is not None):
             self.phin = (p - 1) * (q - 1)
-            self.d = ?
+            self.d = modinv(self.e, self.phin)
             self.test()
         else:
             self.d = None
@@ -121,8 +121,9 @@ class RSA_PKCS_1(RSA):
             raise Exception("first byte must be nonzero 0 if bt=0")
 
         if ps is None:
-            ps = ?
-        eb = ?  # Encryption Block
+            ps = self.pad(self.k - 3 - len(d))
+        eb = b'\x00' + chr(self.bt).encode() + ps + \
+            b'\x00' + d  # Encryption Block
 
         x = int.from_bytes(eb, byteorder='big')  # Conversion to integer
 
@@ -176,7 +177,36 @@ class RSA_PKCS_1(RSA):
         :param eb: encryption block
         :return: parsed data
         """
-        ?
+        # check if eb has the correct structure
+        if eb[0] != 0 or eb[1] not in [0, 1, 2]:
+            return None
+        bt = eb[1]
+        eb_from_ps = eb[2:]
+        if bt == 0:
+            # check if eb has the correct structure
+            if(eb_from_ps[0] != 0):
+                return None
+
+            data_start_index = 0
+            while(eb_from_ps[data_start_index] == 0):
+                data_start_index += 1
+
+        elif bt == 1 or bt == 2:
+            data_start_index = 0
+            while(eb_from_ps[data_start_index] != 0):
+                data_start_index += 1
+            data_start_index += 1
+
+            # check if eb has the correct structure
+            if(data_start_index >= len(eb_from_ps)):
+                return None
+            if bt == 1 and eb_from_ps[:data_start_index] != (data_start_index-1)*bytes([0xff])+b'\x00':
+                return None
+
+        else:
+            raise Exception("incompatible block type")
+
+        return eb_from_ps[data_start_index:]
 
 
 if __name__ == "__main__":
