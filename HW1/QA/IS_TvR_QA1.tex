@@ -50,13 +50,14 @@ of the message from the number of blocks in the message (which we know from the 
 and the required padding length.
 
 Furthermore, if the attacker can modify the ciphertext, he can use his knowledge of the run time
-to know if the padding is correct after changing the ciphertext. Using that way he would be able to find
-the plaintext byte by byte (as we will see in the Lucky 13 attack)
+to know if the padding is correct after changing the ciphertext. The attacker can use this to
+perform a Lucky 13 attack and find the plaintext byte by byte. \\
 
 For decrypted invalid messages: \\
 The attacker would know if the padding is invalid or if the HMAC is incorrect,
 since he will be able to measure whether the "\_\_auth" method was called or not. \\
-
+If the attacker can modify the ciphertext, then just like in the previous case the attacker
+can use the Lucky 13 attack to find the plaintext. \\
 
 \underline{PKCS} \\
 Notice that the "decrypt" method takes a constant amount of time since the length of the encrypted data is always $k$
@@ -66,11 +67,11 @@ Hence for decrypted valid messages the attacker would be able to know the size o
 that calculate the length of the message.
 
 Furthermore, if the attacker can modify the ciphertext, he can use his knowledge of the run time
-to know if the padding is correct after changing the ciphertext. Using this the attack can perform
-a Bleichenbacher attack and find the plaintext.
+to know if the padding is correct after changing the ciphertext. Using this, the attacker can perform
+the Bleichenbacher's attack and find the plaintext.
 
-For decrypted invalid messages the padding is incorrect, so the attacker would not be able to calculate
-the length of the message from the "parse" method.
+For decrypted invalid messages the padding is incorrect, but the attacker would still be able to perform
+the Bleichenbacher's attack and find the plaintext (since there exists a correct padding for the message).
 
 
 \end{document}
