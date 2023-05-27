@@ -82,7 +82,8 @@ def simulate_cache_access(plaintexts, key, start_round, end_round):
             stateround = aes.encrypt_r(plaintexts[j], r, start_round)
             for i in range(NumTables):
                 for l in range(int(BlockSize / NumTables)):
-                    accessed_list[j][i].append( ? )
+                    accessed_list[j][i].append(
+                        stateround[(l * NumTables + i)] & 0xF0)
 
     # Remove ordering of accesses, so as to not leak in which round each access happened.
     for j in range(num_traces):
@@ -132,8 +133,9 @@ def guess_key_high(plaintexts, unaccessed_list):
             guess_list = np.full(2 ** 4, True)
             for j in range(num_traces):
                 for nibble in unaccessed_list[j][i]:
-                    ?
-            key_list[(i + NumTables * l) % BlockSize] = [guess << 4 for guess in range(2 ** 4) if guess_list[guess]]
+                    # ?
+            key_list[(i + NumTables * l) % BlockSize] = [guess <<
+                                                         4 for guess in range(2 ** 4) if guess_list[guess]]
 
     return key_list
 
@@ -150,7 +152,7 @@ def calc_ttables(l, plaintexts, partial_k0_high):
     num_traces = len(plaintexts)
     T_result = np.empty((num_traces, 2 ** 4, NumTables), dtype=np.uint32)
 
-    ?
+    # ?
 
     return T_result
 
@@ -171,7 +173,7 @@ def find_unviable_candidates(j, T_result, k0_low, viable):
 
     unviable = []
 
-    ?
+    # ?
 
     return unviable
 
@@ -212,7 +214,8 @@ def guess_key_ttable(plaintexts, unaccessed_list, key_high, verbose=False):
     k0_guess = np.empty(int(BlockSize / NumTables), dtype=object)
 
     for l in range(int(BlockSize / NumTables)):
-        partial_k0_high = [key_high[(NumTables * l + (i * int(BlockSize / NumTables + 1))) & 0xf] for i in range(NumTables)]
+        partial_k0_high = [key_high[(
+            NumTables * l + (i * int(BlockSize / NumTables + 1))) & 0xf] for i in range(NumTables)]
 
         T_result = calc_ttables(l, plaintexts, partial_k0_high)
 
@@ -225,7 +228,8 @@ def guess_key_ttable(plaintexts, unaccessed_list, key_high, verbose=False):
                     viable[nibble >> 4][i] = False
 
             for k0_low in range(2 ** 16):
-                unviable = find_unviable_candidates(j, T_result, k0_low, viable)
+                unviable = find_unviable_candidates(
+                    j, T_result, k0_low, viable)
                 for k1_nibble, i in unviable:
                     candidates[k0_low][k1_nibble][i] = False
 
@@ -234,14 +238,16 @@ def guess_key_ttable(plaintexts, unaccessed_list, key_high, verbose=False):
         k0_guess[l] = parse_key_candidates(candidates)
 
         if verbose:
-            print(len(k0_guess[l]), "options for part", l, "of key: ", k0_guess[l])
+            print(len(k0_guess[l]), "options for part",
+                  l, "of key: ", k0_guess[l])
 
     key_list = []
     for k0_0 in k0_guess[0]:
         for k0_1 in k0_guess[1]:
             for k0_2 in k0_guess[2]:
                 for k0_3 in k0_guess[3]:
-                    key_list.append(parse_key(k0_0, k0_1, k0_2, k0_3, key_high))
+                    key_list.append(
+                        parse_key(k0_0, k0_1, k0_2, k0_3, key_high))
     return key_list
 
 
@@ -260,12 +266,13 @@ def guess_k1_ttable(plaintexts, unaccessed_list, k0, verbose=False):
 
     r1 = np.empty(num_traces, dtype=bytearray)
 
-    ?
+    # ?
 
     key_list = guess_key_high(r1, unaccessed_list)
 
     if verbose:
-        print("Number of partial k1 options: ", np.prod([len(x) for x in key_list]))
+        print("Number of partial k1 options: ",
+              np.prod([len(x) for x in key_list]))
 
     k1_high_list = generate_key_options([[]], key_list)
     k1_list = []
@@ -285,7 +292,7 @@ def recover_full_key(key_len, k0_list, k1_list):
     """
     full_key_list = []
 
-    ?
+    # ?
 
     # Remove duplicate keys
     return list(dict.fromkeys(full_key_list))
@@ -306,7 +313,8 @@ def cache_attack(key_len, plaintexts, accessed_list, verbose=False):
     key_list = guess_key_high(plaintexts, unaccessed_list)
 
     if verbose:
-        print("Number of partial key options: ", np.prod([len(x) for x in key_list]))
+        print("Number of partial key options: ",
+              np.prod([len(x) for x in key_list]))
 
     k0_high_list = generate_key_options([[]], key_list)
     k0_list = []
@@ -354,13 +362,14 @@ def check_test_vectors():
     keyarr = bytes.fromhex(key)
 
     accessed_list = simulate_cache_access(plaintexts, keyarr, 0, 3)
-
+    print(set(accessed_list[0][0]))
     if set(accessed_list[0][0]) == {16, 48, 64, 80, 96, 144, 160, 176, 192, 240}:
         print("simulate_cache_access: Functional")
     else:
         print("simulate_cache_access: Not Functional")
 
-    T_result = calc_ttables(0, [b'\x96\xa2\x96\xd2$\xf2\x85\xc6{\xee\x93\xc3\x0f\x8a0\x91'], [0, 80, 160, 240])
+    T_result = calc_ttables(
+        0, [b'\x96\xa2\x96\xd2$\xf2\x85\xc6{\xee\x93\xc3\x0f\x8a0\x91'], [0, 80, 160, 240])
     if np.array_equal(T_result[0][0], np.array([999329963, 1316239930, 3277757891, 4025428677])):
         print("calc_ttables: Functional")
     else:
@@ -395,6 +404,8 @@ def check_test_vectors():
 
 
 if __name__ == "__main__":
+
+    check_test_vectors()
 
     num_traces = 15
     plaintext_seed = 0
