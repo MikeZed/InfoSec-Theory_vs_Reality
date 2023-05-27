@@ -9,3 +9,4 @@ IS_TvR_QA[1-9].pdf
 *.txt
 *.fls
 *.zip
+*.pyc
